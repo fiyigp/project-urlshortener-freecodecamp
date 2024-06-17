@@ -29,7 +29,22 @@ app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+app.post('/api/shorturl', (req, res) => {
+  const regexURL = /^(http(s):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/
 
+  if (regexURL.test(req.body.url)) {
+    const arrayURL = req.body.url.split("//");
+    
+    dns.lookup(arrayURL[1], (err, address, family) => {
+      const shortUrl = family;
+      shortUrls[shortUrl] = req.body.url;
+      console.log(family);
+      res.json({url: req.body.url, short_url: family});
+    });
+  } else {
+    res.json({error: 'invalid url'});
+  }
+});
 
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
