@@ -46,6 +46,13 @@ app.post('/api/shorturl', (req, res) => {
   }
 });
 
+app.get('/api/shorturl/:short_url', (req, res) => {
+  const shortUrl = req.params.short_url;
+  const originalUrl = shortUrls[shortUrl];
+
+  res.redirect(originalUrl);
+});
+
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
