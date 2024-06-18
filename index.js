@@ -2,11 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const dns = require('dns');
-const bodyParse = require('body-parser');
+const bodyParser = require('body-parser');
 const app = express();
 const shortUrls = {};
 
-app.use(bodyParse.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: false}));
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
@@ -36,10 +36,9 @@ app.post('/api/shorturl', (req, res) => {
     const arrayURL = req.body.url.split("//");
     
     dns.lookup(arrayURL[1], (err, address, family) => {
-      const shortUrl = family;
+      const shortUrl = Object.entries(shortUrls).length + 1;
       shortUrls[shortUrl] = req.body.url;
-      console.log(family);
-      res.json({url: req.body.url, short_url: family});
+      res.json({url: req.body.url, short_url: shortUrl});
     });
   } else {
     res.json({error: 'invalid url'});
@@ -50,7 +49,11 @@ app.get('/api/shorturl/:short_url', (req, res) => {
   const shortUrl = req.params.short_url;
   const originalUrl = shortUrls[shortUrl];
 
-  res.redirect(originalUrl);
+  if (originalUrl) {
+	res.redirect(originalUrl);
+  } else {
+	  res.json({error: "Wrong format"});
+  }
 });
 
 app.listen(port, function() {
